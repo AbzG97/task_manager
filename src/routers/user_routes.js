@@ -58,23 +58,26 @@ user_router.get('/users/:id', async (req, res) => {
 
 // updating user data based on their IDs
 user_router.put('/users/:id', async (req, res) => {
+    // specified what updates are valid which are valid
+    const updates = Object.keys(req.body);
+    const allowedUpdates = ['name', 'email', 'password', 'age'];
+    const isValidUpdate = updates.every((update) => allowedUpdates.includes(update));
+    
+    if(isValidUpdate == false){
+        return res.status(400).send({'error' :'Invalid updates'});
+    }
     const id = req.params.id;
-    const data = {
-        name: req.body.name,
-        age: req.body.age,
-        email: req.body.email,
-        password: req.body.password
-    };
 
     try {
-        const updatedUser = await  User.findByIdAndUpdate(id, data,  { useFindAndModify: false });
-        if(!updatedUser){
-            res.status(404).send("can't update the data of a user that doesn't exist");
+        const user = await  User.findById(id);
+        if(!user){
+            return res.status(404).send("can't update the data of a user that doesn't exist");
         } else {
+            updates.forEach((update) => user[update] = req.body[update]);
+            await user.save();
             console.log("the following user has been updated");
-            console.log(updatedUser);
-            res.status(200).send(updatedUser);
-
+            console.log(user);
+            res.status(200).send(user);
         }
 
     } catch (e){
@@ -82,5 +85,26 @@ user_router.put('/users/:id', async (req, res) => {
 
     }
 });
+
+// deleting users based on their ids
+user_router.delete("/users/:id", async (req, res) => {
+    const id = req.params.id;
+    try {
+        const deletedUser = await User.findByIdAndDelete(id);
+        if(!deletedUser){
+            res.status(404).send("can't delete a user that doesn't exist");
+
+        } else {
+            console.log("the following user has been deleted");
+            console.log(deletedUser);
+            res.status(200).send(deletedUser);
+        }
+
+    } catch (e){
+        res.status(500).send(e);
+    }
+    
+});
+
 
 module.exports = user_router;

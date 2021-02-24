@@ -1,6 +1,7 @@
 const express = require("express");
 require("./db/mongoose"); // make sure that mongoose file runs and connects to the server
 const app = express();
+
 // setting up routers
 const user_router = require("./routers/user_routes");
 const task_router = require("./routers/task_routes");

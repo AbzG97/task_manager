@@ -64,27 +64,53 @@ task_router.post('/tasks', async (req, res) => {
      }
  });
  
- 
- 
- 
- // deleting users based on their ids
- task_router.delete("/users/:id", async (req, res) => {
+ // deletes a task using Id
+ task_router.delete('/tasks/:id', async (req, res) => {
      const id = req.params.id;
      try {
-         const deletedUser = await User.findByIdAndDelete(id);
-         if(!deletedUser){
-             res.status(404).send("can't delete a user that doesn't exist");
- 
+         const deletedTask = await Task.findByIdAndDelete(id);
+         if(!deletedTask){
+             return res.send("can't delete a task that doesn't exist");
          } else {
-             console.log("the following user has been deleted");
-             console.log(deletedUser);
-             res.status(200).send(deletedUser);
+             console.log("the following task has been deleted \n", deletedTask);
+             res.status(200).send(deletedTask);
          }
- 
      } catch (e){
          res.status(500).send(e);
      }
-     
+
+
  });
+
+ task_router.put('/tasks/:id', async (req, res) => {
+    
+     const updates = Object.keys(req.body);
+     const validUpdates = [ 'title', 'desc', 'completed' ];
+     const isValid = updates.every((update) => validUpdates.includes(update));
+     
+     if(isValid == false){ // making sure if the updates inputed are valid
+        return res.status(400).send({"error" : "invalid updates"});
+    } else {
+        // applying the updates to the task
+        const id = req.params.id;
+
+        try {
+            const task = await Task.findById(id); // getting the task
+            if(!task){
+                return res.status(400).send({"error" : "can't update a task that doen't exist"});
+            } else {
+                updates.forEach((update) => task[update] = req.body[update]); // applying the updates
+                await task.save(); // saving the updates
+                console.log("task updated \n", task);
+                res.status(200).send(task);
+            }
+        } catch (e){
+            res.status(500).send({error : "internal server error"});
+        }
+    }
+ });
+ 
+ 
+ 
  
  module.exports = task_router;

@@ -1,9 +1,8 @@
 const mongoose = require("mongoose");
 const validator = require("validator");
+const bcrypt = require("bcryptjs");
 
-
-// create a model of an object that can be used when inserting data into db
-const User = mongoose.model("User", {
+const userSchema = new mongoose.Schema({
     name: {
         type: "string",
         required: true,
@@ -42,7 +41,27 @@ const User = mongoose.model("User", {
         }
     }
     
-} , "users");
+});
+
+
+// middleware that will apply to all User model that use the method save() 
+// meaning the create user and update user will use this middleware
+// this middleware will hash passwords when they are created or modified
+userSchema.pre('save', async function (next) {
+    const user = this;
+    if(user.isModified('password')){
+        user.password = await bcrypt.hash(user.password, 8);
+
+    }
+
+    next(); // means that the function is over
+
+
+
+});
+
+// create a model of an object that can be used when inserting data into db
+const User = mongoose.model("User", userSchema, "users");
 
 
 module.exports = User;
