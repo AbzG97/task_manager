@@ -1,0 +1,19 @@
+{
+  "name": "task-manager",
+  "version": "1.0.0",
+  "description": "task app db ",
+  "main": "index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js"
+  },
+  "author": "Abdulla Ghazalah",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.1",
+    "mongodb": "^3.6.4",
+    "mongoose": "^5.11.15",
+    "nodemon": "^2.0.7",
+    "validator": "^13.5.2"
+  }
+}
